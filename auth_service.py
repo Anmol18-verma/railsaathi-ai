@@ -1,7 +1,5 @@
 import requests
-
-from firebase_config import FIREBASE_CONFIG
-
+import streamlit as st
 
 FIREBASE_SIGNUP_URL = (
     "https://identitytoolkit.googleapis.com/v1/accounts:signUp"
@@ -13,7 +11,7 @@ FIREBASE_LOGIN_URL = (
 
 
 def signup_user(email, password):
-    url = FIREBASE_SIGNUP_URL + "?key=" + FIREBASE_CONFIG["apiKey"]
+    url = FIREBASE_SIGNUP_URL + "?key=" + st.secrets["FIREBASE_API_KEY"]
 
     data = {
         "email": email,
@@ -36,14 +34,13 @@ def signup_user(email, password):
 
     return {
         "error": response.json().get("error", {}).get(
-            "message",
-            "Signup failed"
+            "message", "Signup failed"
         )
     }
 
 
 def login_user(email, password):
-    url = FIREBASE_LOGIN_URL + "?key=" + FIREBASE_CONFIG["apiKey"]
+    url = FIREBASE_LOGIN_URL + "?key=" + st.secrets["FIREBASE_API_KEY"]
 
     data = {
         "email": email,
@@ -66,7 +63,6 @@ def login_user(email, password):
 
     return {
         "error": response.json().get("error", {}).get(
-            "message",
-            "Login failed"
+            "message", "Login failed"
         )
     }
