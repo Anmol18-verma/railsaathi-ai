@@ -5,3 +5,4 @@ __pycache__/
 venv/
 service-account*.json
 credentials*.json
+firebase_config.py

@@ -3,6 +3,8 @@ from google import genai
 from google.cloud import firestore
 from google.cloud.firestore_v1.base_vector_query import DistanceMeasure
 from google.cloud.firestore_v1.vector import Vector
+from google.genai import types
+from google.genai import types
 from google.adk.agents import LlmAgent
 from google.adk.apps import App
 
@@ -14,8 +16,9 @@ def get_railway_information(query: str) -> str:
         client = genai.Client()
 
         response = client.models.embed_content(
-            model="text-embedding-005",
+            model="gemini-embedding-001",
             contents=query,
+            config=types.EmbedContentConfig(output_dimensionality=768),
         )
 
         query_vector = response.embeddings[0].values
