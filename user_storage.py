@@ -1,38 +1,52 @@
-from google.cloud import firestore
+import requests
 
+PROJECT_ID = "railsaathi-ai"
+DATABASE_ID = "coffee-menu"
 
-db = firestore.Client(database="coffee-menu")
-
-
-def save_chat(uid, user_message, assistant_message):
-
-    chat_ref = (
-        db.collection("users")
-        .document(uid)
-        .collection("chats")
-        .document()
+def save_chat(uid, id_token, user_message, assistant_message):
+    url = (
+        f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}"
+        f"/databases/{DATABASE_ID}/documents/users/{uid}/chats"
     )
 
-    chat_ref.set({
-        "user_message": user_message,
-        "assistant_message": assistant_message,
-        "created_at": firestore.SERVER_TIMESTAMP
-    })
+    data = {
+        "fields": {
+            "user_message": {"stringValue": user_message},
+            "assistant_message": {"stringValue": assistant_message}
+        }
+    }
 
-
-def get_chat_history(uid):
-
-    chats = (
-        db.collection("users")
-        .document(uid)
-        .collection("chats")
-        .order_by("created_at")
-        .stream()
+    requests.post(
+        url,
+        json=data,
+        headers={"Authorization": f"Bearer {id_token}"}
     )
+
+
+def get_chat_history(uid, id_token):
+    url = (
+        f"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}"
+        f"/databases/{DATABASE_ID}/documents/users/{uid}/chats"
+    )
+
+    response = requests.get(
+        url,
+        headers={"Authorization": f"Bearer {id_token}"}
+    )
+
+    if response.status_code != 200:
+        return []
+
+    documents = response.json().get("documents", [])
 
     history = []
 
-    for chat in chats:
-        history.append(chat.to_dict())
+    for document in documents:
+        fields = document.get("fields", {})
+
+        history.append({
+            "user_message": fields.get("user_message", {}).get("stringValue", ""),
+            "assistant_message": fields.get("assistant_message", {}).get("stringValue", "")
+        })
 
     return history
