@@ -4,19 +4,21 @@ from google import genai
 client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
 def ask_railsaathi(messages):
-    contents = []
+    prompt = """
+You are RailSaathi AI, a helpful Indian railway travel assistant.
+Answer questions about RAC, waiting lists, railway classes, PNR,
+cancellation, luggage and passenger safety.
+Do not claim live train or live PNR information.
+
+Conversation:
+"""
 
     for message in messages:
-        role = "user" if message["role"] == "user" else "model"
-
-        contents.append({
-            "role": role,
-            "parts": [{"text": message["content"]}]
-        })
+        prompt += "\n" + message["role"] + ": " + message["content"]
 
     response = client.models.generate_content(
         model="gemini-3.5-flash",
-        contents=contents
+        contents=prompt
     )
 
     return response.text
